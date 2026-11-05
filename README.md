@@ -1,56 +1,52 @@
-# Welcome to your Expo app 👋
+# EzGolf
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Ứng dụng di động ghi điểm và xem sân golf. Người chơi tìm sân, mở bản đồ từng lỗ, và ghi gậy trên điện thoại. Dữ liệu nằm trên máy, không cần tài khoản.
 
-## Get started
+Stack: Expo SDK 58, Expo Router, React Native 0.88, SQLite, Zustand, NativeWind 4, MapLibre.
 
-1. Install dependencies
+## Bốn tab
 
-   ```bash
-   npm install
-   ```
+| Tab | Việc |
+| --- | --- |
+| Courses | Tìm sân, xem khoảng cách, mở chi tiết |
+| Recent | Các vòng đã chơi gần đây |
+| Scorecard | Thẻ điểm: gậy, gạt, phạt, FIR, GIR |
+| Info | Ngôn ngữ, giao diện sáng/tối, chế độ developer |
 
-2. Start the app
+Ngôn ngữ mặc định là tiếng Anh. Tiếng Việt chọn trong Info. Giao diện theo hệ thống, sáng, hoặc tối.
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Chạy local
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+MapLibre không có trong Expo Go. Bản đồ lỗ cần development build:
 
-### Other setup steps
+```bash
+npx expo run:ios
+npx expo run:android
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Kiểm tra kiểu trước khi coi xong:
 
-## Learn more
+```bash
+npx tsc --noEmit
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Build Android để test
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+`eas.json` chỉ có profile `preview`: APK nội bộ, không đưa lên Play Store.
 
-## Join the community
+```bash
+EAS_NO_VCS=1 npx eas-cli@latest build -p android --profile preview
+```
 
-Join our community of developers creating universal apps.
+`EAS_NO_VCS=1` dùng khi working tree còn thay đổi chưa commit. File `.env` nằm trong gitignore và không được upload.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Tài liệu
+
+- [Kiến trúc](docs/architecture.md) — thư mục, điều hướng, trạng thái, theme
+- [Dữ liệu](docs/data.md) — SQLite, ảnh, import và export
+- [Phát triển](docs/development.md) — bản native, splash, những việc không làm
