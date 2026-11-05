@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Camera, GeoJSONSource, Layer, Map, type CameraRef, type MapRef } from "@maplibre/maplibre-react-native";
 
+import { buttonFace } from "@/components/button-face";
 import { DraggablePin } from "@/components/draggable-pin";
 import { MapZoomControls } from "@/components/map-zoom";
 import { useT } from "@/i18n";
 import { boundsFor, closedRing, type LatLng } from "@/utils/coordinates";
+import { themeVars, usePalette, useScheme } from "@/theme";
 import { featureCatalog, featureKinds, featureLabelKey, isTeeKind, type FeatureKind } from "@/utils/feature-kinds";
 
 const mapStyle = "https://tiles.openfreemap.org/styles/liberty";
@@ -47,6 +49,8 @@ export function FeatureMap({
   focusPoints?: LatLng[];
 }) {
   const t = useT();
+  const palette = usePalette();
+  const scheme = useScheme();
   const mapRef = useRef<MapRef>(null);
   const cameraRef = useRef<CameraRef>(null);
   const ignoreMapPress = useRef(false);
@@ -93,7 +97,7 @@ export function FeatureMap({
   }
 
   return (
-    <View className="gap-3">
+    <View className="gap-3" style={themeVars[scheme]}>
       <View
         style={{ height: 360 }}
         onTouchStart={() => onInteractionChange(true)}
@@ -246,9 +250,10 @@ export function FeatureMap({
       <View className="flex-row flex-wrap gap-2">
         <Pressable
           onPress={() => onTool("corner")}
-          className={`rounded-full px-4 py-2 ${tool === "corner" ? "bg-tint" : "bg-card"}`}
+          className="px-4 py-2"
+          style={buttonFace(palette, tool === "corner" ? "tint" : "card")}
         >
-          <Text className={`text-sm font-semibold ${tool === "corner" ? "text-on-tint" : "text-ink"}`}>
+          <Text className="text-sm font-semibold" style={{ color: tool === "corner" ? palette.onTint : palette.text }}>
             {t("feature.corner")}
           </Text>
         </Pressable>
@@ -260,11 +265,13 @@ export function FeatureMap({
               <Pressable
                 key={item}
                 onPress={() => onTool(item)}
-                className="rounded-full px-4 py-2"
+                className="px-4 py-2"
                 style={{
                   backgroundColor: catalog.color,
                   borderWidth: selected ? 2 : 1,
                   borderColor: selected ? "#ffd33d" : "#25292e",
+                  borderRadius: 24,
+                  overflow: "hidden",
                 }}
               >
                 <Text className="text-sm font-semibold" style={{ color: catalog.ink }}>
@@ -277,16 +284,17 @@ export function FeatureMap({
             <Pressable
               key={item}
               onPress={() => onTool(item)}
-              className={`rounded-full px-4 py-2 ${selected ? "bg-tint" : "bg-card"}`}
+              className="px-4 py-2"
+              style={buttonFace(palette, selected ? "tint" : "card")}
             >
-              <Text className={`text-sm font-semibold ${selected ? "text-on-tint" : "text-ink"}`}>
+              <Text className="text-sm font-semibold" style={{ color: selected ? palette.onTint : palette.text }}>
                 {t(featureLabelKey[item])}
               </Text>
             </Pressable>
           );
         })}
       </View>
-      <Text className="text-sm text-muted">
+      <Text className="text-sm" style={{ color: palette.muted }}>
         {tool === "corner"
           ? t("feature.cornerHint")
           : t("feature.placeHint", { label: t(featureLabelKey[tool]) })}

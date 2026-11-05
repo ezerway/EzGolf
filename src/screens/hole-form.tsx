@@ -3,10 +3,12 @@ import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { Stack } from "expo-router/stack";
 
+import { buttonFace } from "@/components/button-face";
 import { FeatureMap, type DraftFeature, type MapTool } from "@/components/feature-map";
 import { FormField } from "@/components/form-field";
 import { useT } from "@/i18n";
 import { fetchFeatures, useCoursesStore } from "@/stores/courses";
+import { themeVars, usePalette, useScheme } from "@/theme";
 import type { LatLng } from "@/utils/coordinates";
 
 export function HoleFormScreen({
@@ -20,6 +22,8 @@ export function HoleFormScreen({
 }) {
   const course = useCoursesStore((state) => state.courses.find((item) => item.id === courseId));
   const t = useT();
+  const palette = usePalette();
+  const scheme = useScheme();
   const status = useCoursesStore((state) => state.status);
   const load = useCoursesStore((state) => state.load);
   const saveHole = useCoursesStore((state) => state.saveHole);
@@ -135,8 +139,8 @@ export function HoleFormScreen({
   if (!course || !layout || (holeId != null && !hole && !hydrated.current)) {
     const missing = status === "ready";
     return (
-      <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-center text-base text-ink">
+      <View className="flex-1 items-center justify-center px-8" style={themeVars[scheme]}>
+        <Text className="text-center text-base" style={{ color: palette.text }}>
           {missing ? t("hole.unavailable") : t("hole.opening")}
         </Text>
       </View>
@@ -144,7 +148,7 @@ export function HoleFormScreen({
   }
 
   return (
-    <>
+    <View className="flex-1 bg-background" style={themeVars[scheme]}>
       <Stack.Screen options={{ title: holeId == null ? t("nav.addHole") : t("nav.editHole") }} />
       <ScrollView
         ref={scrollRef}
@@ -162,8 +166,8 @@ export function HoleFormScreen({
           </View>
         </View>
         <View className="gap-2">
-          <Text className="text-sm text-muted">{t("hole.map")}</Text>
-          <Text className="text-sm text-muted">{t("hole.mapHint")}</Text>
+          <Text className="text-sm" style={{ color: palette.muted }}>{t("hole.map")}</Text>
+          <Text className="text-sm" style={{ color: palette.muted }}>{t("hole.mapHint")}</Text>
         </View>
         <FeatureMap
           corners={corners}
@@ -204,24 +208,25 @@ export function HoleFormScreen({
           }
         />
         {error ? (
-          <Text className="text-sm text-tint" selectable>
+          <Text className="text-sm" style={{ color: palette.tint }} selectable>
             {error}
           </Text>
         ) : null}
         <Pressable
           onPress={() => void save()}
           disabled={saving}
-          className="items-center rounded-full bg-tint px-5 py-4"
+          className="items-center px-5 py-4"
+          style={buttonFace(palette, "tint")}
         >
           <Text className="text-base font-semibold text-on-tint">{saving ? t("common.saving") : t("hole.save")}</Text>
         </Pressable>
         {holeId != null ? (
           <Pressable onPress={confirmRemove} className="items-center py-2">
-            <Text className="text-base font-semibold text-tint">{t("hole.remove")}</Text>
+            <Text className="text-base font-semibold" style={{ color: palette.tint }}>{t("hole.remove")}</Text>
           </Pressable>
         ) : null}
       </ScrollView>
-    </>
+    </View>
   );
 }
 

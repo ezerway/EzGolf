@@ -6,9 +6,11 @@ import { router } from "expo-router";
 import { Stack } from "expo-router/stack";
 import * as WebBrowser from "expo-web-browser";
 
+import { buttonFace, cardFace } from "@/components/button-face";
 import { useT } from "@/i18n";
 import { useCoursesStore } from "@/stores/courses";
 import { useSettingsStore } from "@/stores/settings";
+import { themeVars, usePalette, useScheme } from "@/theme";
 
 export function CourseDetailScreen({ id }: { id: number }) {
   const course = useCoursesStore((state) => state.courses.find((item) => item.id === id));
@@ -17,6 +19,8 @@ export function CourseDetailScreen({ id }: { id: number }) {
   const developerMode = useSettingsStore((state) => state.developerMode);
   const settingsReady = useSettingsStore((state) => state.ready);
   const t = useT();
+  const palette = usePalette();
+  const scheme = useScheme();
 
   useEffect(() => {
     if (status === "loading") {
@@ -26,8 +30,8 @@ export function CourseDetailScreen({ id }: { id: number }) {
 
   if (!course) {
     return (
-      <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-center text-base text-ink">
+      <View className="flex-1 items-center justify-center px-8" style={themeVars[scheme]}>
+        <Text className="text-center text-base" style={{ color: palette.text }}>
           {status === "loading" ? t("course.opening") : t("course.unavailable")}
         </Text>
       </View>
@@ -55,7 +59,7 @@ export function CourseDetailScreen({ id }: { id: number }) {
   }
 
   return (
-    <>
+    <View className="flex-1 bg-background" style={themeVars[scheme]}>
       <Stack.Screen options={{ title: course.name }} />
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-5 px-4 py-6">
         {course.photoUri ? (
@@ -66,10 +70,12 @@ export function CourseDetailScreen({ id }: { id: number }) {
           />
         ) : null}
         <View className="gap-1">
-          <Text className="text-2xl font-semibold text-ink" selectable>
-            {course.name}
-          </Text>
-          <Text className="text-base text-muted" selectable>
+          {process.env.EXPO_OS === "android" ? null : (
+            <Text className="text-2xl font-semibold" style={{ color: palette.text }} selectable>
+              {course.name}
+            </Text>
+          )}
+          <Text className="text-base" style={{ color: palette.muted }} selectable>
             {course.address}
           </Text>
         </View>
@@ -85,8 +91,8 @@ export function CourseDetailScreen({ id }: { id: number }) {
         ) : null}
         {course.description ? (
           <View className="gap-2">
-            <Text className="text-sm text-muted">{t("common.about")}</Text>
-            <Text className="text-base text-ink" selectable>
+            <Text className="text-sm" style={{ color: palette.muted }}>{t("common.about")}</Text>
+            <Text className="text-base" style={{ color: palette.text }} selectable>
               {course.description}
             </Text>
           </View>
@@ -94,24 +100,26 @@ export function CourseDetailScreen({ id }: { id: number }) {
         {settingsReady && developerMode ? (
           <Pressable
             onPress={() => router.push({ pathname: "/[id]/edit", params: { id: String(id) } })}
-            className="items-center rounded-full border border-tint px-5 py-4"
+            className="items-center px-5 py-4"
+            style={buttonFace(palette, "outline")}
           >
-            <Text className="text-base font-semibold text-tint">{t("course.edit")}</Text>
+            <Text className="text-base font-semibold" style={{ color: palette.tint }}>{t("course.edit")}</Text>
           </Pressable>
         ) : null}
-        <Pressable onPress={startRound} className="items-center rounded-full bg-tint px-5 py-4">
+        <Pressable onPress={startRound} className="items-center px-5 py-4" style={buttonFace(palette, "tint")}>
           <Text className="text-base font-semibold text-on-tint">{t("course.startRound")}</Text>
         </Pressable>
       </ScrollView>
-    </>
+    </View>
   );
 }
 
 function InfoRow({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
+  const palette = usePalette();
   return (
-    <Pressable onPress={onPress} className="gap-1 rounded-2xl bg-card px-4 py-4">
-      <Text className="text-sm text-muted">{label}</Text>
-      <Text className="text-base text-tint" selectable>
+    <Pressable onPress={onPress} className="gap-1 px-4 py-4" style={cardFace(palette)}>
+      <Text className="text-sm" style={{ color: palette.muted }}>{label}</Text>
+      <Text className="text-base" style={{ color: palette.tint }} selectable>
         {value}
       </Text>
     </Pressable>

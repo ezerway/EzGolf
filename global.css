@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --color-background: #f4f5f7;
+    --color-ink: #18181b;
+    --color-muted: #71717a;
+    --color-tint: #ffd33d;
+    --color-card: #ffffff;
+    --color-on-tint: #25292e;
+  }
+
+  .dark:root {
+    --color-background: #25292e;
+    --color-ink: #ffffff;
+    --color-muted: #a1a1aa;
+    --color-tint: #ffd33d;
+    --color-card: #32383f;
+    --color-on-tint: #25292e;
+  }
+}

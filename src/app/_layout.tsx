@@ -86,14 +86,25 @@ export default function RootLayout() {
         <StatusBar style={scheme === "dark" ? "light" : "dark"} />
         <NativeTabs
           tintColor={palette.tint}
-          backgroundColor={palette.background}
-          indicatorColor={palette.indicator}
+          backgroundColor={process.env.EXPO_OS === "android" ? palette.card : palette.background}
+          indicatorColor={process.env.EXPO_OS === "android" ? palette.tint : palette.indicator}
           rippleColor={palette.ripple}
-          iconColor={{ default: palette.text, selected: palette.tint }}
-          labelStyle={{
-            default: { color: palette.text },
-            selected: { color: palette.tint },
-          }}
+          iconColor={
+            process.env.EXPO_OS === "android"
+              ? { default: palette.muted, selected: palette.onTint }
+              : { default: palette.text, selected: palette.tint }
+          }
+          labelStyle={
+            process.env.EXPO_OS === "android"
+              ? {
+                  default: { color: palette.muted, fontSize: 12 },
+                  selected: { color: palette.tint, fontSize: 12 },
+                }
+              : {
+                  default: { color: palette.text },
+                  selected: { color: palette.tint },
+                }
+          }
           labelVisibilityMode="labeled"
           blurEffect="none"
           disableTransparentOnScrollEdge

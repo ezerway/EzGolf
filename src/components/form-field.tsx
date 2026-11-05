@@ -6,13 +6,15 @@ export function FormField({ label, multiline, ...props }: TextInputProps & { lab
   const palette = usePalette();
   return (
     <View className="gap-2">
-      <Text className="text-sm text-muted">{label}</Text>
+      <Text className="text-sm" style={{ color: palette.muted }}>{label}</Text>
       <TextInput
         {...props}
         multiline={multiline}
         placeholderTextColor={palette.muted}
+        underlineColorAndroid="transparent"
         textAlignVertical={multiline ? "top" : "center"}
-        className={`rounded-2xl bg-card px-4 py-4 text-base text-ink ${multiline ? "min-h-24" : ""}`}
+        className={multiline ? "min-h-24 px-4 py-4 text-base" : "px-4 py-4 text-base"}
+        style={{ backgroundColor: palette.card, color: palette.text, borderRadius: 16 }}
       />
     </View>
   );

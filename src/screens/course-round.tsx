@@ -15,12 +15,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { buttonFace } from "@/components/button-face";
 import { MapZoomControls } from "@/components/map-zoom";
 import { ShotLine } from "@/components/shot-line";
 import { useT } from "@/i18n";
 import { useCoursesStore, type Course } from "@/stores/courses";
 import { useRoundsStore } from "@/stores/rounds";
-import { usePalette } from "@/theme";
+import { themeVars, usePalette, useScheme } from "@/theme";
 import { boundsFor, closedRing, containsPoint, headingDegrees, type LatLng } from "@/utils/coordinates";
 import { featureCatalog, isTeeKind } from "@/utils/feature-kinds";
 import { holeFacts } from "@/utils/hole-facts";
@@ -33,6 +34,8 @@ export function CourseRoundScreen({ id, layoutId }: { id: number; layoutId: numb
   const status = useCoursesStore((state) => state.status);
   const load = useCoursesStore((state) => state.load);
   const t = useT();
+  const palette = usePalette();
+  const scheme = useScheme();
 
   useEffect(() => {
     if (status === "loading") {
@@ -42,9 +45,9 @@ export function CourseRoundScreen({ id, layoutId }: { id: number; layoutId: numb
 
   if (!course) {
     return (
-      <View className="flex-1 items-center justify-center px-8">
+      <View className="flex-1 items-center justify-center px-8" style={themeVars[scheme]}>
         <Stack.Screen options={{ title: t("nav.round") }} />
-        <Text className="text-center text-base text-ink">
+        <Text className="text-center text-base" style={{ color: palette.text }}>
           {status === "loading" ? t("round.opening") : t("course.unavailable")}
         </Text>
       </View>
@@ -64,6 +67,7 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
   const insets = useSafeAreaInsets();
   const t = useT();
   const palette = usePalette();
+  const scheme = useScheme();
   const mapRef = useRef<MapRef>(null);
   const cameraRef = useRef<CameraRef>(null);
   const placeBallRef = useRef<((point: LatLng) => void) | null>(null);
@@ -242,6 +246,7 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
   return (
     <View
       className="flex-1"
+      style={themeVars[scheme]}
       onLayout={(event) => {
         setMapWidth(event.nativeEvent.layout.width);
         setMapHeight(event.nativeEvent.layout.height);
@@ -339,10 +344,10 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
           onOpenCard={() => router.push({ pathname: "/scorecard", params: { roundId: String(roundId) } })}
         />
       ) : null}
-      <View className="absolute bottom-4 right-4" style={{ marginBottom: insets.bottom }}>
+      <View className="absolute bottom-4 right-4" style={{ marginBottom: process.env.EXPO_OS === "android" ? 0 : insets.bottom }}>
         <MapZoomControls mapRef={mapRef} cameraRef={cameraRef} />
       </View>
-      <View className="absolute bottom-4 left-4 gap-3" style={{ marginBottom: insets.bottom }}>
+      <View className="absolute bottom-4 left-4 gap-3" style={{ marginBottom: process.env.EXPO_OS === "android" ? 0 : insets.bottom }}>
         {openMenu === "hole" ? (
           <ScrollView style={{ maxHeight: 280 }} contentContainerStyle={{ gap: 8 }}>
             {holes.map((hole) => {
@@ -355,13 +360,14 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
                     setHoleId(hole.id);
                     setOpenMenu(null);
                   }}
-                  className={`flex-row items-center gap-2 self-start rounded-full px-3 py-2 ${selected ? "bg-tint" : "bg-card"}`}
+                  className="flex-row items-center gap-2 self-start px-3 py-2"
+                  style={buttonFace(palette, selected ? "tint" : "card")}
                 >
                   <HoleMark selected={selected} />
                   <View>
-                    <Text className={`text-sm font-semibold ${selected ? "text-on-tint" : "text-ink"}`}>{hole.name}</Text>
+                    <Text className="text-sm font-semibold" style={{ color: selected ? palette.onTint : palette.text }}>{hole.name}</Text>
                     {facts ? (
-                      <Text className={`text-xs ${selected ? "text-on-tint" : "text-muted"}`}>{facts}</Text>
+                      <Text className="text-xs" style={{ color: selected ? palette.onTint : palette.muted }}>{facts}</Text>
                     ) : null}
                   </View>
                 </Pressable>
@@ -381,11 +387,13 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
                     focusTee(tee.id);
                     setOpenMenu(null);
                   }}
-                  className="h-11 w-11 items-center justify-center rounded-full"
+                  className="h-11 w-11 items-center justify-center"
                   style={{
                     backgroundColor: catalog.color,
                     borderWidth: selected ? 3 : 1,
                     borderColor: selected ? "#ffd33d" : "#25292e",
+                    borderRadius: 22,
+                    overflow: "hidden",
                   }}
                 >
                   <Text style={{ color: catalog.ink, fontSize: 13, fontWeight: "700" }}>{catalog.mark}</Text>
@@ -397,23 +405,26 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
         {activeHole ? (
           <Pressable
             onPress={() => setOpenMenu((current) => (current === "hole" ? null : "hole"))}
-            className="flex-row items-center gap-2 self-start rounded-full bg-card px-3 py-2"
+            className="flex-row items-center gap-2 self-start px-3 py-2"
+            style={buttonFace(palette, "card")}
           >
             <HoleMark />
             <View>
-              <Text className="text-sm font-semibold text-ink">{activeHole.name}</Text>
-              {holeFacts(activeHole, t) ? <Text className="text-xs text-muted">{holeFacts(activeHole, t)}</Text> : null}
+              <Text className="text-sm font-semibold" style={{ color: palette.text }}>{activeHole.name}</Text>
+              {holeFacts(activeHole, t) ? <Text className="text-xs" style={{ color: palette.muted }}>{holeFacts(activeHole, t)}</Text> : null}
             </View>
           </Pressable>
         ) : null}
         {tees.length > 0 ? (
           <Pressable
             onPress={() => setOpenMenu((current) => (current === "tee" ? null : "tee"))}
-            className="h-12 w-12 items-center justify-center rounded-full"
+            className="h-12 w-12 items-center justify-center"
             style={{
               backgroundColor: selectedTee ? featureCatalog[selectedTee.kind].color : palette.card,
               borderWidth: 2,
               borderColor: "#25292e",
+              borderRadius: 24,
+              overflow: "hidden",
             }}
           >
             <Text
@@ -430,7 +441,8 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
         <Pressable
           onPress={() => void rotateMap()}
           accessibilityLabel={t("round.rotate")}
-          className="h-12 w-12 items-center justify-center rounded-full bg-card"
+          className="h-12 w-12 items-center justify-center"
+          style={buttonFace(palette, "card")}
         >
           <SymbolView
             name={{ ios: "rotate.right", android: "rotate_right", web: "rotate_right" }}
@@ -440,7 +452,8 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
         </Pressable>
         <Pressable
           onPress={() => void centerOnPlayer()}
-          className="h-12 w-12 items-center justify-center rounded-full bg-tint"
+          className="h-12 w-12 items-center justify-center"
+          style={buttonFace(palette, "tint")}
         >
           <Text className="text-lg font-semibold text-on-tint">◎</Text>
         </Pressable>
@@ -522,25 +535,28 @@ function ScoreStepper({
   onChange: (strokes: number | null) => void;
   onOpenCard: () => void;
 }) {
+  const palette = usePalette();
   return (
     <View className="absolute left-[72px] top-3 flex-row items-center gap-2">
-      <View className="flex-row items-center gap-1 rounded-full bg-card px-1 py-1">
-        {facts ? <Text className="pl-2 text-xs font-semibold text-muted">{facts}</Text> : null}
+      <View className="flex-row items-center gap-1 px-1 py-1" style={buttonFace(palette, "card")}>
+        {facts ? <Text className="pl-2 text-xs font-semibold" style={{ color: palette.muted }}>{facts}</Text> : null}
         <Pressable
           onPress={() => onChange(strokes == null || strokes <= 1 ? null : strokes - 1)}
-          className="h-9 w-9 items-center justify-center rounded-full bg-background"
+          className="h-9 w-9 items-center justify-center"
+          style={buttonFace(palette, "surface")}
         >
-          <Text className="text-lg font-semibold text-ink">−</Text>
+          <Text className="text-lg font-semibold" style={{ color: palette.text }}>−</Text>
         </Pressable>
-        <Text className="w-8 text-center text-base font-semibold text-ink">{strokes ?? "–"}</Text>
+        <Text className="w-8 text-center text-base font-semibold" style={{ color: palette.text }}>{strokes ?? "–"}</Text>
         <Pressable
           onPress={() => onChange((strokes ?? 0) + 1)}
-          className="h-9 w-9 items-center justify-center rounded-full bg-tint"
+          className="h-9 w-9 items-center justify-center"
+          style={buttonFace(palette, "tint")}
         >
           <Text className="text-lg font-semibold text-on-tint">+</Text>
         </Pressable>
       </View>
-      <Pressable onPress={onOpenCard} className="h-11 w-11 items-center justify-center rounded-full bg-tint">
+      <Pressable onPress={onOpenCard} className="h-11 w-11 items-center justify-center" style={buttonFace(palette, "tint")}>
         <SymbolView
           name={{ ios: "list.clipboard.fill", android: "leaderboard", web: "leaderboard" }}
           tintColor="#25292e"

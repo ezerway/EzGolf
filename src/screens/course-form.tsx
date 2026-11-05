@@ -5,9 +5,11 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { Stack } from "expo-router/stack";
 
+import { buttonFace, cardFace } from "@/components/button-face";
 import { FormField } from "@/components/form-field";
 import { useT } from "@/i18n";
 import { useCoursesStore } from "@/stores/courses";
+import { themeVars, usePalette, useScheme } from "@/theme";
 import { formatHoleCount } from "@/utils/hole-facts";
 
 export function CourseFormScreen({ courseId, openLayout }: { courseId?: number; openLayout?: string }) {
@@ -18,6 +20,8 @@ export function CourseFormScreen({ courseId, openLayout }: { courseId?: number; 
   const updateCourse = useCoursesStore((state) => state.updateCourse);
   const removeLayout = useCoursesStore((state) => state.removeLayout);
   const t = useT();
+  const palette = usePalette();
+  const scheme = useScheme();
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -141,8 +145,8 @@ export function CourseFormScreen({ courseId, openLayout }: { courseId?: number; 
   if (courseId && !hydrated.current) {
     const found = status === "ready" && courses.some((item) => item.id === courseId);
     return (
-      <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-center text-base text-ink">
+      <View className="flex-1 items-center justify-center px-8" style={themeVars[scheme]}>
+        <Text className="text-center text-base" style={{ color: palette.text }}>
           {status === "ready" && !found ? t("course.unavailable") : t("course.opening")}
         </Text>
       </View>
@@ -150,7 +154,7 @@ export function CourseFormScreen({ courseId, openLayout }: { courseId?: number; 
   }
 
   return (
-    <>
+    <View className="flex-1 bg-background" style={themeVars[scheme]}>
       <Stack.Screen options={{ title: courseId ? t("nav.editClub") : t("nav.addClub") }} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
@@ -165,8 +169,8 @@ export function CourseFormScreen({ courseId, openLayout }: { courseId?: number; 
               style={{ width: 120, height: 120, borderRadius: 20, borderCurve: "continuous" }}
             />
           ) : (
-            <View className="h-28 w-28 items-center justify-center rounded-3xl bg-card">
-              <Text className="text-sm font-semibold text-tint">{t("club.photo")}</Text>
+            <View className="h-28 w-28 items-center justify-center" style={cardFace(palette)}>
+              <Text className="text-sm font-semibold" style={{ color: palette.tint }}>{t("club.photo")}</Text>
             </View>
           )}
         </Pressable>
@@ -189,10 +193,10 @@ export function CourseFormScreen({ courseId, openLayout }: { courseId?: number; 
           multiline
         />
         <View className="gap-3">
-          <Text className="text-sm text-muted">{t("club.courses")}</Text>
-          <Text className="text-sm text-muted">{t("club.coursesHint")}</Text>
+          <Text className="text-sm" style={{ color: palette.muted }}>{t("club.courses")}</Text>
+          <Text className="text-sm" style={{ color: palette.muted }}>{t("club.coursesHint")}</Text>
           {course?.layouts.map((layout) => (
-            <View key={layout.id} className="flex-row items-center justify-between rounded-2xl bg-card px-4 py-4">
+            <View key={layout.id} className="flex-row items-center justify-between px-4 py-4" style={cardFace(palette)}>
               <Pressable
                 onPress={() =>
                   router.push({
@@ -202,8 +206,8 @@ export function CourseFormScreen({ courseId, openLayout }: { courseId?: number; 
                 }
                 className="flex-1"
               >
-                <Text className="text-base font-semibold text-ink">{layout.name}</Text>
-                <Text className="mt-1 text-sm text-muted">{formatHoleCount(layout.holes.length, t)}</Text>
+                <Text className="text-base font-semibold" style={{ color: palette.text }}>{layout.name}</Text>
+                <Text className="mt-1 text-sm" style={{ color: palette.muted }}>{formatHoleCount(layout.holes.length, t)}</Text>
               </Pressable>
               {course.layouts.length > 1 ? (
                 <Pressable
@@ -219,31 +223,32 @@ export function CourseFormScreen({ courseId, openLayout }: { courseId?: number; 
                   }}
                   hitSlop={8}
                 >
-                  <Text className="text-sm text-tint">{t("common.remove")}</Text>
+                  <Text className="text-sm" style={{ color: palette.tint }}>{t("common.remove")}</Text>
                 </Pressable>
               ) : null}
             </View>
           ))}
           <Pressable onPress={() => void openLayoutEditor("new")} className="self-start">
-            <Text className="text-base font-semibold text-tint">
+            <Text className="text-base font-semibold" style={{ color: palette.tint }}>
               {course && course.layouts.length > 0 ? t("club.addAnother") : t("club.addCourse")}
             </Text>
           </Pressable>
         </View>
         {error ? (
-          <Text className="text-sm text-tint" selectable>
+          <Text className="text-sm" style={{ color: palette.tint }} selectable>
             {error}
           </Text>
         ) : null}
         <Pressable
           onPress={() => void save()}
           disabled={saving}
-          className="items-center rounded-full bg-tint px-5 py-4"
+          className="items-center px-5 py-4"
+          style={buttonFace(palette, "tint")}
         >
           <Text className="text-base font-semibold text-on-tint">{saving ? t("common.saving") : t("club.save")}</Text>
         </Pressable>
       </ScrollView>
-    </>
+    </View>
   );
 }
 

@@ -3,9 +3,11 @@ import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { Stack } from "expo-router/stack";
 
+import { buttonFace, cardFace } from "@/components/button-face";
 import { FormField } from "@/components/form-field";
 import { useT } from "@/i18n";
 import { useCoursesStore } from "@/stores/courses";
+import { themeVars, usePalette, useScheme } from "@/theme";
 import { holeFacts } from "@/utils/hole-facts";
 
 export function LayoutFormScreen({
@@ -20,6 +22,8 @@ export function LayoutFormScreen({
   const course = useCoursesStore((state) => state.courses.find((item) => item.id === courseId));
   const status = useCoursesStore((state) => state.status);
   const t = useT();
+  const palette = usePalette();
+  const scheme = useScheme();
   const load = useCoursesStore((state) => state.load);
   const saveLayout = useCoursesStore((state) => state.saveLayout);
   const removeLayout = useCoursesStore((state) => state.removeLayout);
@@ -149,8 +153,8 @@ export function LayoutFormScreen({
   if (!course || (layoutId != null && !layout && !hydrated.current)) {
     const missing = status === "ready" && (!course || layoutId != null);
     return (
-      <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-center text-base text-ink">
+      <View className="flex-1 items-center justify-center px-8" style={themeVars[scheme]}>
+        <Text className="text-center text-base" style={{ color: palette.text }}>
           {missing ? t("course.unavailable") : t("course.opening")}
         </Text>
       </View>
@@ -158,7 +162,7 @@ export function LayoutFormScreen({
   }
 
   return (
-    <>
+    <View className="flex-1 bg-background" style={themeVars[scheme]}>
       <Stack.Screen options={{ title: layoutId == null ? t("nav.addCourse") : t("nav.editCourse") }} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
@@ -184,8 +188,8 @@ export function LayoutFormScreen({
           multiline
         />
         <View className="gap-3">
-          <Text className="text-sm text-muted">{t("layout.holes")}</Text>
-          <Text className="text-sm text-muted">{t("layout.holesHint")}</Text>
+          <Text className="text-sm" style={{ color: palette.muted }}>{t("layout.holes")}</Text>
+          <Text className="text-sm" style={{ color: palette.muted }}>{t("layout.holesHint")}</Text>
           {layout?.holes.map((hole) => (
             <Pressable
               key={hole.id}
@@ -195,37 +199,39 @@ export function LayoutFormScreen({
                   params: { id: String(courseId), layoutId: String(layout.id), holeId: String(hole.id) },
                 })
               }
-              className="rounded-2xl bg-card px-4 py-4"
+              className="px-4 py-4"
+              style={cardFace(palette)}
             >
-              <Text className="text-base font-semibold text-ink">{hole.name}</Text>
-              <Text className="mt-1 text-sm text-muted">
+              <Text className="text-base font-semibold" style={{ color: palette.text }}>{hole.name}</Text>
+              <Text className="mt-1 text-sm" style={{ color: palette.muted }}>
                 {[holeFacts(hole, t), hole.corners ? t("layout.cornersSet") : t("layout.cornersMissing")].filter(Boolean).join(" · ")}
               </Text>
             </Pressable>
           ))}
           <Pressable onPress={() => void openHoleEditor("new")} className="self-start">
-            <Text className="text-base font-semibold text-tint">{t("layout.addHole")}</Text>
+            <Text className="text-base font-semibold" style={{ color: palette.tint }}>{t("layout.addHole")}</Text>
           </Pressable>
         </View>
         {error ? (
-          <Text className="text-sm text-tint" selectable>
+          <Text className="text-sm" style={{ color: palette.tint }} selectable>
             {error}
           </Text>
         ) : null}
         <Pressable
           onPress={() => void save()}
           disabled={saving}
-          className="items-center rounded-full bg-tint px-5 py-4"
+          className="items-center px-5 py-4"
+          style={buttonFace(palette, "tint")}
         >
           <Text className="text-base font-semibold text-on-tint">{saving ? t("common.saving") : t("layout.save")}</Text>
         </Pressable>
         {layoutId != null && course.layouts.length > 1 ? (
           <Pressable onPress={confirmRemove} className="items-center py-2">
-            <Text className="text-base font-semibold text-tint">{t("layout.remove")}</Text>
+            <Text className="text-base font-semibold" style={{ color: palette.tint }}>{t("layout.remove")}</Text>
           </Pressable>
         ) : null}
       </ScrollView>
-    </>
+    </View>
   );
 }
 

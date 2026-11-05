@@ -8,11 +8,12 @@ import * as DocumentPicker from "expo-document-picker";
 import { router, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { buttonFace, cardFace } from "@/components/button-face";
 import { CourseRow } from "@/components/course-row";
 import { useT } from "@/i18n";
 import { useCoursesStore, type Course } from "@/stores/courses";
 import { useSettingsStore } from "@/stores/settings";
-import { usePalette } from "@/theme";
+import { usePalette, useScheme, themeVars } from "@/theme";
 import { formatKilometers, kilometersAway, type LatLng } from "@/utils/coordinates";
 import { parseCoursesFile } from "@/utils/import-courses";
 
@@ -27,6 +28,7 @@ export function CoursesScreen() {
   const reducedMotion = useReducedMotion();
   const insets = useSafeAreaInsets();
   const palette = usePalette();
+  const scheme = useScheme();
   const t = useT();
   const courses = useCoursesStore((state) => state.courses);
   const status = useCoursesStore((state) => state.status);
@@ -113,7 +115,7 @@ export function CoursesScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background" style={themeVars[scheme]}>
       <CoursesBrand reducedMotion={reducedMotion} topInset={insets.top} />
       <TextInput
         value={query}
@@ -123,7 +125,10 @@ export function CoursesScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         clearButtonMode="while-editing"
-        className="mx-4 mb-3 rounded-2xl bg-card px-4 py-3 text-base text-ink"
+        underlineColorAndroid="transparent"
+        textAlignVertical="center"
+        className="mx-4 mb-3 h-12 rounded-2xl px-4 text-base"
+        style={{ backgroundColor: palette.card, color: palette.text }}
       />
       <Animated.FlatList
         style={{ flex: 1 }}
@@ -152,38 +157,41 @@ export function CoursesScreen() {
         keyboardDismissMode="on-drag"
         contentContainerStyle={{
           paddingTop: 4,
-          paddingBottom: insets.bottom + 96,
+          paddingBottom: process.env.EXPO_OS === "android" ? 16 : insets.bottom + 96,
           flexGrow: visibleCourses.length === 0 ? 1 : undefined,
         }}
         ListHeaderComponent={
           canManage || notice ? (
             <View className="gap-3 px-4 pb-3">
               {canManage ? (
-                <View className="flex-row gap-3">
+                <View className="flex-row flex-wrap gap-2">
                   <Pressable
                     onPress={() => router.push("/add")}
-                    className="flex-1 items-center rounded-full bg-tint px-4 py-3"
+                    className="min-h-12 min-w-[30%] flex-1 items-center justify-center px-4 py-3"
+                    style={buttonFace(palette, "tint")}
                   >
                     <Text className="text-sm font-semibold text-on-tint">{t("courses.add")}</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => void importFile()}
                     disabled={importing || exporting}
-                    className="flex-1 items-center rounded-full border border-tint px-4 py-3"
+                    className="min-h-12 min-w-[30%] flex-1 items-center justify-center px-4 py-3"
+                    style={buttonFace(palette, "outline")}
                   >
-                    <Text className="text-sm font-semibold text-tint">{importing ? t("courses.importing") : t("courses.import")}</Text>
+                    <Text className="text-sm font-semibold" style={{ color: palette.tint }}>{importing ? t("courses.importing") : t("courses.import")}</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => void exportFile()}
                     disabled={importing || exporting || courses.length === 0}
-                    className="flex-1 items-center rounded-full border border-tint px-4 py-3"
+                    className="min-h-12 min-w-[30%] flex-1 items-center justify-center px-4 py-3"
+                    style={buttonFace(palette, "outline")}
                   >
-                    <Text className="text-sm font-semibold text-tint">{exporting ? t("courses.exporting") : t("courses.export")}</Text>
+                    <Text className="text-sm font-semibold" style={{ color: palette.tint }}>{exporting ? t("courses.exporting") : t("courses.export")}</Text>
                   </Pressable>
                 </View>
               ) : null}
               {notice ? (
-                <Text className="text-sm text-muted" selectable>
+                <Text className="text-sm" style={{ color: palette.muted }} selectable>
                   {notice}
                 </Text>
               ) : null}
@@ -208,18 +216,21 @@ export function CoursesScreen() {
 }
 
 function CoursesBrand({ reducedMotion, topInset }: { reducedMotion: boolean; topInset: number }) {
+  const android = process.env.EXPO_OS === "android";
+  const palette = usePalette();
+  const mark = android ? 56 : 88;
   return (
     <View
       accessibilityRole="header"
       accessibilityLabel="EzGolf"
-      className="flex-row items-center gap-4 px-5 pb-4"
-      style={{ paddingTop: topInset + 8 }}
+      className={android ? "flex-row items-center gap-3 px-4 pb-3" : "flex-row items-center gap-4 px-5 pb-4"}
+      style={{ paddingTop: topInset + (android ? 4 : 8) }}
     >
       <View
         style={{
-          width: 88,
-          height: 88,
-          borderRadius: 24,
+          width: mark,
+          height: mark,
+          borderRadius: android ? 16 : 24,
           borderCurve: "continuous",
           overflow: "hidden",
           backgroundColor: "#25292e",
@@ -229,10 +240,10 @@ function CoursesBrand({ reducedMotion, topInset }: { reducedMotion: boolean; top
           source={require("../../../assets/animations/launch.json")}
           autoPlay={!reducedMotion}
           loop={!reducedMotion}
-          style={{ width: 88, height: 88 }}
+          style={{ width: mark, height: mark }}
         />
       </View>
-      <Text className="text-4xl font-bold text-ink">EzGolf</Text>
+      <Text className={android ? "text-2xl font-bold" : "text-4xl font-bold"} style={{ color: palette.text }}>EzGolf</Text>
     </View>
   );
 }
@@ -278,6 +289,7 @@ function EmptyCourses({
   canManage: boolean;
 }) {
   const t = useT();
+  const palette = usePalette();
   const trimmed = query.trim();
   return (
     <Animated.View
@@ -290,10 +302,10 @@ function EmptyCourses({
         loop={!reducedMotion}
         style={{ width: 140, height: 140 }}
       />
-      <Text className="text-center text-base text-ink">
+      <Text className="text-center text-base" style={{ color: palette.text }}>
         {trimmed ? t("courses.emptyMatch", { query: trimmed }) : t("courses.empty")}
       </Text>
-      <Text className="mt-2 text-center text-sm text-muted">
+      <Text className="mt-2 text-center text-sm" style={{ color: palette.muted }}>
         {trimmed
           ? t("courses.emptyHint")
           : canManage
@@ -306,13 +318,14 @@ function EmptyCourses({
 
 function StatusMessage({ title, body, onRetry }: { title: string; body: string; onRetry: () => void }) {
   const t = useT();
+  const palette = usePalette();
   return (
     <View className="flex-1 items-center justify-center gap-3 px-8">
-      <Text className="text-center text-lg font-semibold text-ink">{title}</Text>
-      <Text className="text-center text-sm text-muted" selectable>
+      <Text className="text-center text-lg font-semibold" style={{ color: palette.text }}>{title}</Text>
+      <Text className="text-center text-sm" style={{ color: palette.muted }} selectable>
         {body}
       </Text>
-      <Pressable onPress={onRetry} className="mt-2 rounded-full bg-tint px-5 py-3">
+      <Pressable onPress={onRetry} className="mt-2 px-5 py-3" style={buttonFace(palette, "tint")}>
         <Text className="text-base font-semibold text-on-tint">{t("courses.tryAgain")}</Text>
       </Pressable>
     </View>
@@ -320,12 +333,13 @@ function StatusMessage({ title, body, onRetry }: { title: string; body: string; 
 }
 
 function SkeletonRow() {
+  const palette = usePalette();
   return (
-    <View className="flex-row gap-3 rounded-2xl bg-card p-3" style={{ borderCurve: "continuous" }}>
-      <View className="h-24 w-24 rounded-2xl bg-background" />
+    <View className="flex-row gap-3 p-3" style={cardFace(palette)}>
+      <View className="h-24 w-24 rounded-2xl" style={{ backgroundColor: palette.background }} />
       <View className="flex-1 justify-center gap-2">
-        <View className="h-4 w-3/4 rounded-full bg-background" />
-        <View className="h-3 w-full rounded-full bg-background" />
+        <View className="h-4 w-3/4 rounded-full" style={{ backgroundColor: palette.background }} />
+        <View className="h-3 w-full rounded-full" style={{ backgroundColor: palette.background }} />
       </View>
     </View>
   );
