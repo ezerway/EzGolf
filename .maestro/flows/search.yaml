@@ -1,0 +1,19 @@
+appId: ${MAESTRO_APP_ID || "com.ezerway.ezgolf"}
+tags:
+  - smoke
+---
+- launchApp:
+    permissions:
+      all: deny
+- extendedWaitUntil:
+    visible:
+      id: screen-courses
+    timeout: 30000
+- tapOn:
+    id: courses-search
+- inputText: zzzz-no-such-course
+- extendedWaitUntil:
+    visible:
+      id: courses-empty
+    timeout: 10000
+- eraseText: 40

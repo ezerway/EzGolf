@@ -1,0 +1,10 @@
+flows:
+  - flows/**
+
+platform:
+  ios:
+    disableAnimations: true
+  android:
+    disableAnimations: true
+
+testOutputDir: .maestro/output

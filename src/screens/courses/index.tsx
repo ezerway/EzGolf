@@ -115,11 +115,12 @@ export function CoursesScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background" style={themeVars[scheme]}>
+    <View testID="screen-courses" className="flex-1 bg-background" style={themeVars[scheme]}>
       <CoursesBrand reducedMotion={reducedMotion} topInset={insets.top} />
       <TextInput
         value={query}
         onChangeText={setQuery}
+        testID="courses-search"
         placeholder={t("courses.search")}
         placeholderTextColor={palette.muted}
         autoCapitalize="none"
@@ -293,6 +294,7 @@ function EmptyCourses({
   const trimmed = query.trim();
   return (
     <Animated.View
+      testID="courses-empty"
       entering={reducedMotion ? undefined : FadeIn.duration(220)}
       style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}
     >

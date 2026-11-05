@@ -45,8 +45,18 @@ EAS_NO_VCS=1 npx eas-cli@latest build -p android --profile preview
 
 `EAS_NO_VCS=1` dùng khi working tree còn thay đổi chưa commit. File `.env` nằm trong gitignore và không được upload.
 
+## Kiểm thử
+
+Maestro chạy trên bản app đã cài, không chạy trong Expo Go.
+
+```bash
+npm run e2e:ios
+npm run e2e:android
+```
+
 ## Tài liệu
 
 - [Kiến trúc](docs/architecture.md) — thư mục, điều hướng, trạng thái, theme
 - [Dữ liệu](docs/data.md) — SQLite, ảnh, import và export
 - [Phát triển](docs/development.md) — bản native, splash, những việc không làm
+- [E2E](docs/e2e.md) — cài Maestro và chạy flow

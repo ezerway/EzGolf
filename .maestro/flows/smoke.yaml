@@ -1,0 +1,42 @@
+appId: ${MAESTRO_APP_ID || "com.ezerway.ezgolf"}
+tags:
+  - smoke
+---
+- launchApp:
+    permissions:
+      all: deny
+- extendedWaitUntil:
+    visible:
+      id: screen-courses
+    timeout: 30000
+- assertVisible: EzGolf
+- runFlow:
+    file: ../subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-info
+- extendedWaitUntil:
+    visible:
+      id: screen-info
+    timeout: 10000
+- runFlow:
+    file: ../subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-scorecard
+- extendedWaitUntil:
+    visible:
+      id: screen-scorecard
+    timeout: 10000
+- runFlow:
+    file: ../subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-recent
+- extendedWaitUntil:
+    visible:
+      id: screen-recent
+    timeout: 10000
+- runFlow:
+    file: ../subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-courses
+- assertVisible:
+    id: screen-courses

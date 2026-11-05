@@ -51,6 +51,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "e2e": "node ./scripts/e2e.js",
+    "e2e:ios": "node ./scripts/e2e.js ios",
+    "e2e:android": "node ./scripts/e2e.js android",
     "postinstall": "node ./scripts/patch-css-interop.js"
   },
   "private": true

@@ -38,7 +38,7 @@ export function InfoScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background" style={themeVars[scheme]}>
+    <View testID="screen-info" className="flex-1 bg-background" style={themeVars[scheme]}>
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-4 px-4 py-6"

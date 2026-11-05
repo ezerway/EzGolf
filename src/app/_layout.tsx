@@ -109,28 +109,28 @@ export default function RootLayout() {
           blurEffect="none"
           disableTransparentOnScrollEdge
         >
-          <NativeTabs.Trigger name="(courses)">
+          <NativeTabs.Trigger name="(courses)" testID="tab-courses" accessibilityLabel="tab-courses">
             <NativeTabs.Trigger.Label>{t("tabs.courses")}</NativeTabs.Trigger.Label>
             <NativeTabs.Trigger.Icon
               sf={{ default: "flag", selected: "flag.fill" }}
               md="golf_course"
             />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="recent">
+          <NativeTabs.Trigger name="recent" testID="tab-recent" accessibilityLabel="tab-recent">
             <NativeTabs.Trigger.Label>{t("tabs.recent")}</NativeTabs.Trigger.Label>
             <NativeTabs.Trigger.Icon
               sf={{ default: "clock", selected: "clock.fill" }}
               md="history"
             />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="scorecard">
+          <NativeTabs.Trigger name="scorecard" testID="tab-scorecard" accessibilityLabel="tab-scorecard">
             <NativeTabs.Trigger.Label>{t("tabs.scorecard")}</NativeTabs.Trigger.Label>
             <NativeTabs.Trigger.Icon
               sf={{ default: "list.clipboard", selected: "list.clipboard.fill" }}
               md="scoreboard"
             />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="info">
+          <NativeTabs.Trigger name="info" testID="tab-info" accessibilityLabel="tab-info">
             <NativeTabs.Trigger.Label>{t("tabs.info")}</NativeTabs.Trigger.Label>
             <NativeTabs.Trigger.Icon
               sf={{ default: "info.circle", selected: "info.circle.fill" }}

@@ -25,7 +25,7 @@ export function RecentScreen() {
   );
 
   return (
-    <View className="flex-1 bg-background" style={[{ paddingTop: insets.top }, themeVars[scheme]]}>
+    <View testID="screen-recent" className="flex-1 bg-background" style={[{ paddingTop: insets.top }, themeVars[scheme]]}>
       <Text
         className={process.env.EXPO_OS === "android" ? "px-4 pb-3 pt-1 text-2xl font-semibold" : "px-5 pb-4 pt-2 text-3xl font-bold"}
         style={{ color: palette.text }}

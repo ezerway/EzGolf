@@ -1,0 +1,15 @@
+appId: ${MAESTRO_APP_ID || "com.ezerway.ezgolf"}
+---
+- runFlow:
+    when:
+      visible:
+        id: ${TAB_ID}
+    commands:
+      - tapOn:
+          id: ${TAB_ID}
+- runFlow:
+    when:
+      notVisible:
+        id: ${TAB_ID}
+    commands:
+      - tapOn: ${TAB_ID}

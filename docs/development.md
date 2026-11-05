@@ -22,7 +22,11 @@ npx expo start
 npx expo run:ios
 npx expo run:android
 npx tsc --noEmit
+npm run e2e:ios
+npm run e2e:android
 ```
+
+`e2e:*` cần Maestro CLI và một bản app đã cài. Xem [docs/e2e.md](e2e.md).
 
 `npx expo lint` hiện chưa có cấu hình ESLint. Đừng tự thêm config eslint nếu chưa được yêu cầu.
 
