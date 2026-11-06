@@ -147,6 +147,8 @@ export const en = {
   "feature.placeHint": "Tap the map to place a {label}. Drag a marker to move it, or tap it to remove it.",
   "round.opening": "Opening map…",
   "round.rotate": "Rotate map",
+  "map.satellite": "Satellite",
+  "map.street": "Map",
   "played.today": "Today, {time}",
   "played.yesterday": "Yesterday, {time}",
   "played.date": "{day}, {time}",

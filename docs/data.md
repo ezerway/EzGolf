@@ -28,7 +28,7 @@ Bốn tee: `tee-blue`, `tee-white`, `tee-yellow`, `tee-red`. Giá trị cũ `tee
 
 ## Ảnh
 
-Ảnh chọn từ máy được copy vào `course-photos`. URL `http`/`https` giữ nguyên. Export ghi `photoBase64` cho ảnh local và `photoUri` cho URL. Import tạo lại file từ base64 nếu không có URI.
+Ảnh chọn từ máy được copy vào `course-photos`. URL `http`/`https` giữ nguyên trong app. Khi export, ảnh local và ảnh từ URL được tải rồi ghi vào `photoBase64` cùng `photoType`. `photoUri` chỉ còn khi không đọc được ảnh. Import tạo lại file từ base64 trước, rồi mới dùng URL.
 
 ## Import và export
 

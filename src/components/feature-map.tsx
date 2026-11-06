@@ -5,12 +5,11 @@ import { Camera, GeoJSONSource, Layer, Map, type CameraRef, type MapRef } from "
 import { buttonFace } from "@/components/button-face";
 import { DraggablePin } from "@/components/draggable-pin";
 import { MapZoomControls } from "@/components/map-zoom";
+import { streetMapStyle, type AppMapStyle } from "@/components/map-style";
 import { useT } from "@/i18n";
 import { boundsFor, closedRing, type LatLng } from "@/utils/coordinates";
 import { themeVars, usePalette, useScheme } from "@/theme";
 import { featureCatalog, featureKinds, featureLabelKey, isTeeKind, type FeatureKind } from "@/utils/feature-kinds";
-
-const mapStyle = "https://tiles.openfreemap.org/styles/liberty";
 
 export type DraftFeature = {
   key: string;
@@ -56,6 +55,7 @@ export function FeatureMap({
   const ignoreMapPress = useRef(false);
   const pinDragRef = useRef(false);
   const [mapReady, setMapReady] = useState(false);
+  const [mapStyle, setMapStyle] = useState<AppMapStyle>(streetMapStyle);
   const [pinDrag, setPinDrag] = useState(false);
   const bounds = boundsFor(corners.length > 0 ? corners : (focusPoints ?? []));
   const openingBounds = useRef(bounds);
@@ -245,7 +245,7 @@ export function FeatureMap({
               })
             : null}
         </Map>
-        <MapZoomControls mapRef={mapRef} cameraRef={cameraRef} className="absolute bottom-3 right-3" />
+        <MapZoomControls mapRef={mapRef} cameraRef={cameraRef} className="absolute bottom-3 right-3" onStyleChange={setMapStyle} />
       </View>
       <View className="flex-row flex-wrap gap-2">
         <Pressable

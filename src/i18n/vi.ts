@@ -149,6 +149,8 @@ export const vi: Record<MessageKey, string> = {
   "feature.placeHint": "Chạm bản đồ để đặt {label}. Kéo dấu để di chuyển, hoặc chạm để xóa.",
   "round.opening": "Đang mở bản đồ…",
   "round.rotate": "Xoay bản đồ",
+  "map.satellite": "Vệ tinh",
+  "map.street": "Bản đồ",
   "played.today": "Hôm nay, {time}",
   "played.yesterday": "Hôm qua, {time}",
   "played.date": "{day}, {time}",

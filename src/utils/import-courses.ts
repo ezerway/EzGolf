@@ -49,10 +49,11 @@ function courseFromRecord(value: unknown): NewCourse | null {
   const phone = textField(record, ["phone", "telephone", "tel", "sdt"]);
   const website = textField(record, ["website", "url", "web"]);
   const description = textField(record, ["description", "about", "intro", "gioiThieu"]);
+  const dataPhoto = photo?.startsWith("data:") ? photo : null;
   return {
     name,
     address,
-    photoUri: photo,
+    photoUri: dataPhoto ? null : photo,
     phone,
     website,
     description,
@@ -67,7 +68,8 @@ function courseFromRecord(value: unknown): NewCourse | null {
       holes: layout.holes,
     })),
     features: [],
-    photoBase64: textField(record, ["photoBase64", "photoData"]),
+    photoBase64: dataPhoto ?? textField(record, ["photoBase64", "photoData"]),
+    photoType: textField(record, ["photoType", "photoMime"]),
   };
 }
 

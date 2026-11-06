@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { buttonFace } from "@/components/button-face";
 import { MapZoomControls } from "@/components/map-zoom";
+import { streetMapStyle, type AppMapStyle } from "@/components/map-style";
 import { ShotLine } from "@/components/shot-line";
 import { useT } from "@/i18n";
 import { useCoursesStore, type Course } from "@/stores/courses";
@@ -26,7 +27,6 @@ import { boundsFor, closedRing, containsPoint, headingDegrees, type LatLng } fro
 import { featureCatalog, isTeeKind } from "@/utils/feature-kinds";
 import { holeFacts } from "@/utils/hole-facts";
 
-const mapStyle = "https://tiles.openfreemap.org/styles/liberty";
 const mapPadding = { top: 72, right: 96, bottom: 160, left: 96 };
 
 export function CourseRoundScreen({ id, layoutId }: { id: number; layoutId: number | null }) {
@@ -79,6 +79,7 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
   const [selectedTeeId, setSelectedTeeId] = useState<number | null>(null);
   const [openMenu, setOpenMenu] = useState<"hole" | "tee" | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapStyle, setMapStyle] = useState<AppMapStyle>(streetMapStyle);
   const [mapWidth, setMapWidth] = useState(0);
   const [mapHeight, setMapHeight] = useState(0);
   const [roundId, setRoundId] = useState<number | null>(null);
@@ -345,7 +346,7 @@ function CourseMap({ course, layoutId }: { course: Course; layoutId: number | nu
         />
       ) : null}
       <View className="absolute bottom-4 right-4" style={{ marginBottom: process.env.EXPO_OS === "android" ? 0 : insets.bottom }}>
-        <MapZoomControls mapRef={mapRef} cameraRef={cameraRef} />
+        <MapZoomControls mapRef={mapRef} cameraRef={cameraRef} onStyleChange={setMapStyle} />
       </View>
       <View className="absolute bottom-4 left-4 gap-3" style={{ marginBottom: process.env.EXPO_OS === "android" ? 0 : insets.bottom }}>
         {openMenu === "hole" ? (

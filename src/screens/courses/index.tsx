@@ -1,11 +1,11 @@
+import * as DocumentPicker from "expo-document-picker";
+import { File, Paths } from "expo-file-system";
+import * as Location from "expo-location";
+import { router, useFocusEffect } from "expo-router";
+import LottieView from "lottie-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, Pressable, Share, Text, TextInput, View } from "react-native";
-import * as Location from "expo-location";
 import Animated, { FadeIn, LinearTransition, ReduceMotion, useReducedMotion } from "react-native-reanimated";
-import LottieView from "lottie-react-native";
-import { File, Paths } from "expo-file-system";
-import * as DocumentPicker from "expo-document-picker";
-import { router, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { buttonFace, cardFace } from "@/components/button-face";
@@ -13,7 +13,7 @@ import { CourseRow } from "@/components/course-row";
 import { useT } from "@/i18n";
 import { useCoursesStore, type Course } from "@/stores/courses";
 import { useSettingsStore } from "@/stores/settings";
-import { usePalette, useScheme, themeVars } from "@/theme";
+import { themeVars, usePalette, useScheme } from "@/theme";
 import { formatKilometers, kilometersAway, type LatLng } from "@/utils/coordinates";
 import { parseCoursesFile } from "@/utils/import-courses";
 
@@ -249,15 +249,23 @@ function CoursesBrand({ reducedMotion, topInset }: { reducedMotion: boolean; top
   );
 }
 
+function courseArea(course: Course): LatLng[] | null {
+  if (course.corners && course.corners.length > 0) {
+    return course.corners;
+  }
+  const layoutCorners = course.layouts.find((layout) => layout.corners && layout.corners.length > 0)?.corners;
+  if (layoutCorners && layoutCorners.length > 0) {
+    return layoutCorners;
+  }
+  const points = course.layouts.flatMap((layout) => layout.holes.flatMap((hole) => hole.corners ?? []));
+  return points.length > 0 ? points : null;
+}
+
 function courseDistance(here: LatLng | null, course: Course) {
   if (!here) {
     return null;
   }
-  const corners =
-    course.corners && course.corners.length > 0
-      ? course.corners
-      : (course.layouts.find((layout) => layout.corners && layout.corners.length > 0)?.corners ?? null);
-  const kilometers = kilometersAway(here, corners);
+  const kilometers = kilometersAway(here, courseArea(course));
   return kilometers == null ? null : formatKilometers(kilometers);
 }
 

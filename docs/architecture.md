@@ -53,7 +53,7 @@ Ba store dùng chung `getDatabase()` trong `src/stores/courses.ts`.
 
 ## Bản đồ vòng chơi
 
-Style là OpenFreeMap Liberty, không cần API key. MapLibre chỉ chạy trong development build hoặc bản EAS, không chạy trong Expo Go.
+Style đường phố là OpenFreeMap Liberty, không cần API key. Nút Vệ tinh đổi sang ảnh Esri World Imagery. MapLibre chỉ chạy trong development build hoặc bản EAS, không chạy trong Expo Go.
 
 Khi chọn một tee, các marker tee khác bị ẩn. Camera khung polygon góc của lỗ, xoay sao cho tee ở dưới và lỗ ở trên, trừ khi người dùng đã xoay. Nút xoay cộng 45° mỗi lần bấm. Vị trí chỉ xin quyền when-in-use để căn map.
 

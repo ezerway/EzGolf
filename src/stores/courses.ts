@@ -92,6 +92,7 @@ export type NewCourse = {
   layouts: NewLayout[];
   features: NewCourseFeature[];
   photoBase64?: string | null;
+  photoType?: string | null;
 };
 
 export type CourseFeature = {
@@ -631,24 +632,100 @@ function remotePhoto(uri: string | null) {
   return null;
 }
 
-async function localPhotoBase64(uri: string | null) {
-  if (!uri || uri.startsWith("http://") || uri.startsWith("https://")) {
-    return null;
+function mimeForExtension(extension: string) {
+  const normalized = extension.replace(/^\./, "").toLowerCase();
+  if (normalized === "png") {
+    return "image/png";
   }
-  const file = new File(uri);
-  if (!file.exists) {
-    return null;
+  if (normalized === "webp") {
+    return "image/webp";
   }
-  return file.base64();
+  if (normalized === "heic" || normalized === "heif") {
+    return "image/heic";
+  }
+  return "image/jpeg";
 }
 
-async function photoFileFromBase64(value: string | null) {
+function extensionForMime(mime: string | null) {
+  if (!mime) {
+    return "jpg";
+  }
+  if (mime.includes("png")) {
+    return "png";
+  }
+  if (mime.includes("webp")) {
+    return "webp";
+  }
+  if (mime.includes("heic") || mime.includes("heif")) {
+    return "heic";
+  }
+  return "jpg";
+}
+
+function extensionFromUri(uri: string) {
+  const path = uri.split("?")[0]?.split("#")[0] ?? uri;
+  const extension = path.split(".").pop()?.toLowerCase();
+  return extension && ["jpg", "jpeg", "png", "webp", "heic", "heif"].includes(extension) ? `.${extension}` : ".jpg";
+}
+
+async function embedPhoto(uri: string | null) {
+  if (!uri || uri.startsWith("data:")) {
+    return uri?.startsWith("data:") ? { photoBase64: uri, photoType: null } : null;
+  }
+  let file: File;
+  let temporary = false;
+  if (uri.startsWith("http://") || uri.startsWith("https://")) {
+    file = await File.downloadFileAsync(
+      uri,
+      new File(Paths.cache, `ezgolf-photo-${Date.now()}-${Math.random().toString(36).slice(2)}${extensionFromUri(uri)}`),
+    );
+    temporary = true;
+  } else {
+    file = new File(uri);
+    if (!file.exists) {
+      return null;
+    }
+  }
+  try {
+    const photoBase64 = (await file.base64()).replace(/\s/g, "");
+    if (!photoBase64) {
+      return null;
+    }
+    return { photoBase64, photoType: mimeForExtension(file.extension || extensionFromUri(uri)) };
+  } finally {
+    if (temporary && file.exists) {
+      try {
+        file.delete();
+      } catch {
+        // The cache copy can stay if it cannot be removed.
+      }
+    }
+  }
+}
+
+async function localPhotoBase64(uri: string | null) {
+  try {
+    return await embedPhoto(uri);
+  } catch {
+    return null;
+  }
+}
+
+async function photoFileFromBase64(value: string | null, photoType: string | null) {
   if (!value) {
     return null;
   }
-  const file = new File(Paths.cache, `ezgolf-import-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`);
+  const dataUrl = value.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([\s\S]+)$/);
+  const payload = (dataUrl?.[2] ?? value).replace(/\s/g, "");
+  if (!payload) {
+    return null;
+  }
+  const file = new File(
+    Paths.cache,
+    `ezgolf-import-${Date.now()}-${Math.random().toString(36).slice(2)}.${extensionForMime(dataUrl?.[1] ?? photoType)}`,
+  );
   file.create({ intermediates: true, overwrite: true });
-  await file.write(value, { encoding: "base64" });
+  await file.write(payload, { encoding: "base64" });
   return file.uri;
 }
 
@@ -829,10 +906,11 @@ export const useCoursesStore = create<CoursesState>((set, get) => ({
     const db = await database();
     const prepared: { course: NewCourse; photoUri: string | null }[] = [];
     for (const course of input) {
-      const photoSource = course.photoUri ?? (await photoFileFromBase64(course.photoBase64 ?? null));
+      const photoSource = await photoFileFromBase64(course.photoBase64 ?? null, course.photoType ?? null);
+      const source = photoSource ?? (course.photoUri?.startsWith("data:") ? null : course.photoUri);
       prepared.push({
         course,
-        photoUri: await storedPhoto(photoSource),
+        photoUri: await storedPhoto(source),
       });
     }
     await db.withTransactionAsync(async () => {
@@ -868,15 +946,18 @@ export const useCoursesStore = create<CoursesState>((set, get) => ({
     const payload = {
       version: 1,
       courses: await Promise.all(
-        courses.map(async (course) => ({
+        courses.map(async (course) => {
+          const embedded = await localPhotoBase64(course.photoUri);
+          return {
           name: course.name,
           address: course.address,
           phone: course.phone,
           website: course.website,
           description: course.description,
           corners: course.corners,
-          photoUri: remotePhoto(course.photoUri),
-          photoBase64: await localPhotoBase64(course.photoUri),
+          photoUri: embedded ? null : remotePhoto(course.photoUri),
+          photoBase64: embedded?.photoBase64 ?? null,
+          photoType: embedded?.photoType ?? null,
           layouts: course.layouts.map((layout) => ({
             name: layout.name,
             address: layout.address,
@@ -891,7 +972,8 @@ export const useCoursesStore = create<CoursesState>((set, get) => ({
               features: featuresByHole.get(hole.id) ?? [],
             })),
           })),
-        })),
+          };
+        }),
       ),
     };
     return JSON.stringify(payload);
